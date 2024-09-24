@@ -6,10 +6,10 @@ import json
 # Fungsi untuk memuat GeoJSON berdasarkan tingkat wilayah (kecamatan/kelurahan)
 def load_geojson(geo_level):
     if geo_level == "Kelurahan":
-        with open(".\\geos\\DESA\\Desa NOP Pekanbaru.geojson") as file_json:
+        with open("geos/DESA/Desa NOP Pekanbaru.geojson") as file_json:
             return json.load(file_json)
     elif geo_level == "Kecamatan":
-        with open(".\\geos\\KECAMATAN\\kecamatan nop pekanbaru.geojson") as file_json:
+        with open("geos/DESA/kecamatan NOP Pekanbaru.geojson") as file_json:
             return json.load(file_json)
 
 # Fungsi untuk memilih kolom
