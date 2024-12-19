@@ -57,20 +57,41 @@ if uploaded_file:
 
     # Pengaturan warna untuk numerik
     if value_type == 'Numerik':
-        color_option = st.radio("Pilih jenis skema warna:",
-                            ('Skema warna kustom', 'Skema warna pre-defined'))
+        color_option = st.radio("Pilih jenis skema warna:", ('Skema warna kustom', 'Skema warna pre-defined'))
+        
         if color_option == 'Skema warna kustom':
-          # Pilih warna kustom (3 warna)
-          st.write("Pilih 3 warna untuk skala (rendah, sedang, tinggi):")
-          low_color = st.color_picker("Pilih warna untuk nilai rendah", '#00FF00')
-          mid_color = st.color_picker("Pilih warna untuk nilai sedang", '#FFFF00')
-          high_color = st.color_picker("Pilih warna untuk nilai tinggi", '#FF0000')
+            st.write("Pilih warna untuk tiap rentang nilai (skala 0-1):")
+            
+            ranges = [
+                (0.0, 0.1, '#004000'),  # Hijau gelap (0.0 - 0.1)
+                (0.1, 0.2, '#006400'),  # Hijau tua (0.1 - 0.2)
+                (0.2, 0.3, '#008000'),  # Hijau (0.2 - 0.3)
+                (0.3, 0.4, '#32CD32'),  # Hijau terang (0.3 - 0.4)
+                (0.4, 0.5, '#ADFF2F'),  # Hijau kekuningan (0.4 - 0.5)
+                (0.5, 0.6, '#FFFF00'),  # Kuning (0.5 - 0.6)
+                (0.6, 0.7, '#FFD700'),  # Kuning emas (0.6 - 0.7)
+                (0.7, 0.8, '#FFA500'),  # Oranye (0.7 - 0.8)
+                (0.8, 0.9, '#FF4500'),  # Oranye kemerahan (0.8 - 0.9)
+                (0.9, 1.0, '#FF0000'),  # Merah (0.9 - 1.0)
+            ]
 
-          custom_colorscale = [
-              [0.0, low_color],   # Warna rendah
-              [0.5, mid_color],   # Warna sedang
-              [1.0, high_color]   # Warna tinggi
-          ]
+            # ranges = [
+            #     (0.0, 0.1, '#004000'),  # Hijau terang (0.0 - 0.1)
+            #     (0.1, 0.2, '#7CFC00'),  # Hijau kekuningan terang (0.1 - 0.2)
+            #     (0.2, 0.3, '#ADFF2F'),  # Hijau kekuningan (0.2 - 0.3)
+            #     (0.3, 0.4, '#FFFF00'),  # Kuning (0.3 - 0.4)
+            #     (0.4, 0.6, '#FFD700'),  # Kuning emas (0.4 - 0.6)
+            #     (0.6, 0.8, '#FFA500'),  # Oranye (0.6 - 0.8)
+            #     (0.8, 1.0, '#FF0000'),  # Merah (0.8 - 1.0)
+            # ]
+
+            custom_colorscale = [
+                [0.0, '#004000'],  
+                [0.2, '#FFFF00'],   # Warna sedang
+                [0.4, '#FFD700'],   # Warna sedang # Warna rendah
+                [0.6, '#FF4500'],   # Warna sedang
+                [1.0, '#860000']   # Warna tinggi
+            ]
         else:
             # Pilih dari skema warna pre-defined Plotly
             predefined_color_scale = st.selectbox("Pilih skema warna pre-defined:",
@@ -94,30 +115,41 @@ if uploaded_file:
             color_map[category] = color
 
     # Visualisasi
+    # Pilih kolom tambahan untuk hover label
+    hover_columns = st.multiselect("Pilih kolom untuk ditampilkan di hover label:", df.columns)
+
+    # Pastikan data dalam kolom hover bisa digunakan (misalnya, konversi ke string jika diperlukan)
+    hover_data = {col: True for col in hover_columns}
+
+    # Visualisasi
+    # Visualisasi
     if value_type == 'Numerik':
         fig = px.choropleth_mapbox(
             filtered_df, 
             geojson=geojson_data, 
             locations=geo_column,  
-            featureidkey=f"properties.DESA" if geo_level=='Kelurahan' else f"properties.KECAMATAN",  # Sesuaikan dengan key GeoJSON
+            featureidkey=f"properties.DESA" if geo_level == 'Kelurahan' else f"properties.KECAMATAN",  # Sesuaikan dengan key GeoJSON
             color=value_column, 
             color_continuous_scale=custom_colorscale if color_option == 'Skema warna kustom' else predefined_color_scale, 
             range_color=(filtered_df[value_column].min(), filtered_df[value_column].max()),
-            labels={value_column: value_column}
+            labels={value_column: value_column},
+            # text=value_column
         )
     else:
         fig = px.choropleth_mapbox(
             filtered_df, 
             geojson=geojson_data, 
             locations=geo_column,  
-            featureidkey=f"properties.DESA" if geo_level=='Kelurahan' else f"properties.KECAMATAN",  # Sesuaikan dengan key GeoJSON
+            featureidkey=f"properties.DESA" if geo_level == 'Kelurahan' else f"properties.KECAMATAN",  # Sesuaikan dengan key GeoJSON
             color=value_column, 
             color_discrete_map=color_map,  # Menggunakan skema warna yang diurutkan
-            labels={value_column: value_column}
+            labels={value_column: value_column},
+            # text=value_column
         )
 
     # Update layout peta
     fig.update_geos(fitbounds="locations", visible=False)
+    
     fig.update_layout(
         mapbox_style="carto-positron",  
         mapbox_zoom=6.5,  
@@ -127,3 +159,4 @@ if uploaded_file:
 
     # Tampilkan visualisasi
     st.plotly_chart(fig, use_container_width=True)
+
