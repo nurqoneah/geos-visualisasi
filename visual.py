@@ -10,10 +10,10 @@ import matplotlib.cm as cm
 # Fungsi untuk memuat GeoJSON berdasarkan tingkat wilayah (kecamatan/kelurahan)
 def load_geojson(geo_level):
     if geo_level == "Kelurahan":
-        with open(".\\geos\\DESA\\Desa NOP Pekanbaru.geojson") as file_json:
+        with open("geos/DESA/Desa NOP Pekanbaru.geojson") as file_json:
             return json.load(file_json)
     elif geo_level == "Kecamatan":
-        with open(".\\geos\\KECAMATAN\\kecamatan nop pekanbaru.geojson") as file_json:
+        with open("geos/KECAMATAN/kecamatan nop pekanbaru.geojson") as file_json:
             return json.load(file_json)
         
 def map_numeric_to_color(value, vmin, vmax, cmap_name="viridis"):
