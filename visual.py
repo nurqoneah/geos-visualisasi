@@ -10,10 +10,13 @@ import matplotlib.cm as cm
 # Fungsi untuk memuat GeoJSON berdasarkan tingkat wilayah (kecamatan/kelurahan)
 def load_geojson(geo_level):
     if geo_level == "Kelurahan":
-        with open(".\\geos\\DESA\\Desa NOP Pekanbaru.geojson") as file_json:
+        with open("geos/DESA/Desa NOP Pekanbaru.geojson") as file_json:
             return json.load(file_json)
     elif geo_level == "Kecamatan":
-        with open(".\\geos\\KECAMATAN\\kecamatan nop pekanbaru.geojson") as file_json:
+        with open("geos/KECAMATAN/kecamatan nop pekanbaru.geojson") as file_json:
+            return json.load(file_json)
+    elif geo_level == "Kota":
+        with open("geos/KOTA/Indonesia_cities.geojson") as file_json:
             return json.load(file_json)
         
 def map_numeric_to_color(value, vmin, vmax, cmap_name="viridis"):
@@ -39,11 +42,31 @@ def render_map():
             st.header("Konfigurasi Peta")
 
             # Pilih tingkat wilayah (Kecamatan/Kelurahan)
-            geo_level = st.selectbox("Pilih tingkat wilayah:", ["Kelurahan", "Kecamatan"])
+            geo_level = st.selectbox("Pilih tingkat wilayah:", ["Kelurahan", "Kecamatan", "Kota"])
             geojson_data = load_geojson(geo_level)
 
             # Pilih kolom untuk geolocation
-            geo_column = select_column("Kolom wilayah (kelurahan/kecamatan):", df)
+            geo_column = select_column("Kolom wilayah (kelurahan/kecamatan/kota):", df)
+            if geo_level=="Kota":
+                mapping = {
+                    'KOTA PEKANBARU': 'Pekanbaru',
+                    'BENGKALIS': 'Bengkalis',
+                    'KOTA DUMAI': 'Dumai',
+                    'INDRAGIRI HULU': 'Indragiri Hulu',
+                    'KAMPAR': 'Kampar',
+                    'KEPULAUAN MERANTI': 'Kepulauan Meranti',
+                    'KUANTAN SINGINGI': 'Kuantan Singingi',
+                    'ROKAN HILIR': 'Rokan Hilir',
+                    'ROKAN HULU': 'Rokan Hulu',
+                    'S I A K': 'Siak',
+                    'INDRAGIRI HILIR': 'Indragiri Hilir',
+                    'PELALAWAN': 'Pelalawan'
+                }
+
+                # Menerapkan pemetaan ke kolom geo_column
+                df[geo_column] = df[geo_column].map(mapping)
+
+
 
             # Pilih kolom untuk nilai
             value_column = select_column("Kolom nilai:", df)
@@ -99,7 +122,7 @@ def render_map():
                 filtered_df, 
                 geojson=geojson_data, 
                 locations=geo_column,  
-                featureidkey=f"properties.DESA" if geo_level == 'Kelurahan' else f"properties.KECAMATAN",
+                featureidkey = f"properties.DESA" if geo_level == 'Kelurahan' else f"properties.KECAMATAN" if geo_level == 'Kecamatan' else "properties.NAME_2",
                 color=value_column, 
                 color_continuous_scale=custom_colorscale if color_option == 'Custom' else predefined_color_scale,
                 range_color=(filtered_df[value_column].min(), filtered_df[value_column].max()),
@@ -111,7 +134,7 @@ def render_map():
                 filtered_df, 
                 geojson=geojson_data, 
                 locations=geo_column,  
-                featureidkey=f"properties.DESA" if geo_level == 'Kelurahan' else f"properties.KECAMATAN",
+                featureidkey = f"properties.DESA" if geo_level == 'Kelurahan' else f"properties.KECAMATAN" if geo_level == 'Kecamatan' else "properties.NAME_2",
                 color=value_column, 
                 color_discrete_map=color_map,  # Warna kategori
                 hover_data=hover_data,
