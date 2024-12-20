@@ -14,12 +14,9 @@ def load_geojson(geo_level):
             return json.load(file_json)
     elif geo_level == "Kecamatan":
         with open("geos/KECAMATAN/kecamatan nop pekanbaru.geojson") as file_json:
-<<<<<<< HEAD
             return json.load(file_json)
     elif geo_level == "Kota":
         with open("geos/KOTA/Indonesia_cities.geojson") as file_json:
-=======
->>>>>>> ec8ce1395cb18ac9ba7443ddc5de04fe244bd687
             return json.load(file_json)
         
 def map_numeric_to_color(value, vmin, vmax, cmap_name="viridis"):
